@@ -1,29 +1,35 @@
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../../cmake")
+cmake_minimum_required(VERSION 3.16.3)
 
-project(GPU_Computing_in_Robotics_tutorial_lesson_1) 
+project(lesson1 CUDA CXX)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
+
+include(CheckLanguage)
+check_language(CUDA)
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
-find_package(PCL 1.5 REQUIRED)
-find_package(CUDA 7.5 REQUIRED)
-find_package(CUDADevice 3.0 REQUIRED)
+find_package(PCL REQUIRED)
 
-set_directory_properties( PROPERTIES COMPILE_DEFINITIONS "" )
+if(NOT DEFINED CMAKE_CUDA_STANDARD)
+    set(CMAKE_CUDA_STANDARD 11)
+    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+endif()
 
-include_directories(include)
-include_directories(${PCL_INCLUDE_DIRS})
-add_definitions(${PCL_DEFINITIONS})
-
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDADEVICE_NVCC_FLAGS} -Xptxas -v")
-
-cuda_add_executable(lesson_1
-	src/lesson_1_main.cpp
-	src/cudaWrapper.cpp
-	src/lesson_1.cu
+add_executable(
+    lesson1
+    src/lesson_1_main.cpp
+    src/cudaWrapper.cpp
+    src/lesson_1.cu
 )
-target_link_libraries(lesson_1
-	${OPENGL_LIBRARIES} 
+
+target_link_libraries(lesson1 PRIVATE
+    ${OPENGL_LIBRARIES}
 	${GLUT_LIBRARIES}
 	${PCL_LIBRARIES}
+)
+
+target_include_directories(lesson1 PRIVATE
+    ./include
+    ${PCL_INCLUDE_DIRS}
 )
